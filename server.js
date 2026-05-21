@@ -906,6 +906,30 @@ const FIRM_TWITTER_HANDLES = {
   yc:      ['ycombinator', 'garrytan', 'paulg']
 };
 
+const PORTFOLIO_CEO_HANDLES = {
+  a16z: [
+    { handle: 'zoink',           ceoName: 'Dylan Field',       company: 'Figma' },
+    { handle: 'alighodsi',       ceoName: 'Ali Ghodsi',        company: 'Databricks' },
+    { handle: 'ashtom',          ceoName: 'Thomas Dohmke',     company: 'GitHub' },
+    { handle: 'fidjissimo',      ceoName: 'Fidji Simo',        company: 'Instacart' },
+    { handle: 'jasoncitron',     ceoName: 'Jason Citron',      company: 'Discord' }
+  ],
+  sequoia: [
+    { handle: 'patrickc',        ceoName: 'Patrick Collison',  company: 'Stripe' },
+    { handle: 'bchesky',         ceoName: 'Brian Chesky',      company: 'Airbnb' },
+    { handle: 't_xu',            ceoName: 'Tony Xu',           company: 'DoorDash' },
+    { handle: 'ivanhzhao',       ceoName: 'Ivan Zhao',         company: 'Notion' },
+    { handle: 'ericsyuan',       ceoName: 'Eric Yuan',         company: 'Zoom' }
+  ],
+  yc: [
+    { handle: 'sama',            ceoName: 'Sam Altman',        company: 'OpenAI' },
+    { handle: 'djclancy999',     ceoName: 'Dan Clancy',        company: 'Twitch' },
+    { handle: 'brian_armstrong', ceoName: 'Brian Armstrong',   company: 'Coinbase' },
+    { handle: 'hdubugras',       ceoName: 'Henrique Dubugras', company: 'Brex' },
+    { handle: 'bchesky',         ceoName: 'Brian Chesky',      company: 'Airbnb' }
+  ]
+};
+
 async function fetchTweetsFromXAPI(handles) {
   const bearerToken = process.env.X_BEARER_TOKEN;
   if (!bearerToken) throw Object.assign(new Error('X_BEARER_TOKEN not configured in .env'), { missing_config: true });
@@ -1040,6 +1064,40 @@ Be extremely concise — maximum 2 sentences per bullet point, maximum 3 bullets
     res.json(result);
   } catch (err) {
     console.error('[/api/partners/insights]', err.message);
+    res.status(err.missing_config ? 400 : 500).json({ error: err.message, missing_config: !!err.missing_config });
+  }
+});
+
+app.get('/api/portfolio-tweets', async (req, res) => {
+  const firmId   = req.query.firm || 'a16z';
+  const cacheKey = `portfolio:tweets:${firmId}`;
+
+  try {
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+
+    const ceos    = PORTFOLIO_CEO_HANDLES[firmId] || [];
+    const handles = ceos.map(c => c.handle);
+    const tweets  = await fetchTweetsFromXAPI(handles);
+
+    const byHandle = {};
+    tweets.forEach(t => { (byHandle[t.handle] = byHandle[t.handle] || []).push(t); });
+
+    const ceoData = ceos.map(ceo => ({
+      company: ceo.company,
+      ceoName: ceo.ceoName,
+      handle:  ceo.handle,
+      url:     `https://x.com/${ceo.handle}`,
+      tweets:  (byHandle[ceo.handle.toLowerCase()] || [])
+        .filter(t => !t.text.startsWith('@'))
+        .slice(0, 5)
+    }));
+
+    const result = { ceos: ceoData, firm: firmId };
+    setCached(cacheKey, result, TWEET_CACHE_TTL);
+    res.json(result);
+  } catch (err) {
+    console.error('[/api/portfolio-tweets]', err.message);
     res.status(err.missing_config ? 400 : 500).json({ error: err.message, missing_config: !!err.missing_config });
   }
 });

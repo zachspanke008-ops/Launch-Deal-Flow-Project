@@ -523,6 +523,17 @@
     @media (max-width: 900px) { .x-more-cols { grid-template-columns: 1fr; } }
     .tweet-no-recent { padding: 1rem; font-size: 0.8125rem; color: var(--text-3); text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 
+    /* ── X Activity Sub-tabs ────────────────────────────────────────── */
+    .x-subtab-bar { display: flex; gap: 0.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+    .x-subtab { background: none; border: none; cursor: pointer; font-size: 0.6875rem; font-weight: 600; color: var(--text-3); padding: 0.4rem 0.75rem 0.6rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; letter-spacing: 0.03em; }
+    .x-subtab:hover { color: var(--text-2); }
+    .x-subtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .x-subtab-panel.hidden { display: none; }
+    .x-portfolio-cols { display: grid; grid-template-columns: repeat(5,1fr); gap: 1rem; margin-bottom: 2rem; }
+    @media (max-width: 1200px) { .x-portfolio-cols { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 700px)  { .x-portfolio-cols { grid-template-columns: 1fr; } }
+    .x-portfolio-loading { padding: 3rem; text-align: center; color: var(--text-3); font-size: 0.8125rem; }
+
     /* ── Footer ─────────────────────────────────────────────────────── */
     footer { border-top: 1px solid var(--border); padding: 1.25rem 1.5rem; max-width: 1320px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
     .footer-left  { font-size: 0.625rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
@@ -544,8 +555,8 @@
         </svg>
       </div>
       <div>
-        <div class="brand-name">VC Deal Flow Tracker</div>
-        <div class="brand-sub">AI-Powered Investment Intelligence</div>
+        <div class="brand-name">VC Intelligence Dashboard</div>
+        <div class="brand-sub">Where deal flow meets AI</div>
       </div>
     </div>
     <div class="header-right">
@@ -636,7 +647,6 @@ const FIRM_QUICK_LINKS = {
       { handle: 'gradypb',       url: 'https://x.com/gradypb' }
     ],
     linkedin: [
-      { name: 'Alfred Lin',  url: 'https://www.linkedin.com/in/alfredlin' },
       { name: 'Shaun Maguire', url: 'https://www.linkedin.com/in/shaun-maguire-c/' },
       { name: 'Pat Grady',    url: 'https://www.linkedin.com/in/gradypb' }
     ],
@@ -661,21 +671,50 @@ const SVG_LI   = `<svg width="10" height="10" viewBox="0 0 24 24" fill="currentC
 const SVG_GLOB = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
 
 const HANDLE_COLORS = {
-  // a16z
+  // a16z partners
   'a16z':        '#ef4444',
   'pmarca':      '#6366f1',
   'bhorowitz':   '#f59e0b',
   'sarahgp':     '#8b5cf6',
   'alexdanco':   '#06b6d4',
   'willbryk':    '#10b981',
-  // Sequoia
-  'sequoia':     '#f59e0b',
+  // Sequoia partners
+  'sequoia':       '#f59e0b',
   'shaunmmaguire': '#e879f9',
   'gradypb':       '#38bdf8',
-  // YC
+  // YC partners
   'ycombinator': '#ef4444',
   'garrytan':    '#f97316',
-  'paulg':       '#22d3ee'
+  'paulg':       '#22d3ee',
+  // a16z portfolio CEOs
+  'zoink':           '#8b5cf6',
+  'alighodsi':       '#06b6d4',
+  'ashtom':          '#10b981',
+  'fidjissimo':      '#f97316',
+  'jasoncitron':     '#e879f9',
+  // Sequoia portfolio CEOs
+  'patrickc':        '#6366f1',
+  'bchesky':         '#ef4444',
+  't_xu':            '#10b981',
+  'ivanhzhao':       '#8b5cf6',
+  'ericsyuan':       '#2563eb',
+  // YC portfolio CEOs
+  'sama':            '#22d3ee',
+  'djclancy999':     '#9333ea',
+  'brian_armstrong': '#3b82f6',
+  'hdubugras':       '#e879f9'
+};
+
+const HANDLE_URLS = {
+  'a16z':          'https://x.com/a16z',
+  'pmarca':        'https://x.com/pmarca',
+  'bhorowitz':     'https://x.com/bhorowitz',
+  'sequoia':       'https://x.com/sequoia',
+  'shaunmmaguire': 'https://x.com/shaunmmaguire',
+  'gradypb':       'https://x.com/gradypb',
+  'ycombinator':   'https://x.com/ycombinator',
+  'garrytan':      'https://x.com/garrytan',
+  'paulg':         'https://x.com/paulg'
 };
 function handleColor(h) { return HANDLE_COLORS[(h || '').toLowerCase()] || '#94a3b8'; }
 function fmtCount(n) { if (!n) return '0'; return n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'')+'k' : String(n); }
@@ -702,13 +741,16 @@ function makeXCol(handle, name, byHandle) {
   const htws    = (byHandle[handle] || []).slice(0, 5);
   const body    = htws.length
     ? htws.map(makeTweetCard).join('')
-    : `<div class="tweet-no-recent">No recent tweets in the last 7 days</div>`;
+    : `<div class="tweet-no-recent">No recent posts in the last 7 days</div>`;
+  const badgeEl = HANDLE_URLS[handle]
+    ? `<a href="${escHtml(HANDLE_URLS[handle])}" target="_blank" rel="noopener noreferrer" class="handle-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">@${escHtml(handle)}</a>`
+    : `<span class="handle-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">@${escHtml(handle)}</span>`;
   return `<div class="x-col">
     <div class="x-col-header">
       <div class="x-col-avatar" style="background:${color}25;color:${color}">${escHtml(initial)}</div>
       <div class="x-col-meta">
         <div class="x-col-name-row">
-          <span class="handle-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">@${escHtml(handle)}</span>
+          ${badgeEl}
           <span class="x-col-name">${escHtml(name)}</span>
         </div>
         ${role ? `<div class="x-col-role">${escHtml(role)}</div>` : ''}
@@ -718,10 +760,39 @@ function makeXCol(handle, name, byHandle) {
   </div>`;
 }
 
+function renderPortfolioXActivity(data) {
+  if (!data || !data.ceos || !data.ceos.length) {
+    return `<div class="empty-state">No portfolio data available.</div>`;
+  }
+  const cols = data.ceos.map(ceo => {
+    const color   = handleColor(ceo.handle);
+    const initial = ceo.ceoName.charAt(0).toUpperCase();
+    const tweets  = (ceo.tweets || []).slice(0, 5);
+    const body    = tweets.length
+      ? tweets.map(makeTweetCard).join('')
+      : `<div class="tweet-no-recent">No recent posts in the last 7 days</div>`;
+    return `<div class="x-col">
+      <div class="x-col-header">
+        <div class="x-col-avatar" style="background:${color}25;color:${color}">${escHtml(initial)}</div>
+        <div class="x-col-meta">
+          <div class="x-col-name-row">
+            <a href="${escHtml(ceo.url)}" target="_blank" rel="noopener noreferrer" class="handle-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">@${escHtml(ceo.handle)}</a>
+            <span class="x-col-name">${escHtml(ceo.ceoName)}</span>
+          </div>
+          <div class="x-col-role">${escHtml(ceo.company)} · CEO</div>
+        </div>
+      </div>
+      <div class="tweet-cards">${body}</div>
+    </div>`;
+  }).join('');
+  return `<div class="x-portfolio-cols">${cols}</div>`;
+}
+
 // ── State ──────────────────────────────────────────────────────────────────────
 const state = {
   firms: [], activeFirm: 'a16z', activeInnerTab: 'overview',
-  tabCache: {}, loading: false, tabLoading: {}
+  tabCache: {}, loading: false, tabLoading: {},
+  xActivitySubTab: 'partners', portfolioTweetsCache: {}
 };
 
 // ── Date Helpers ───────────────────────────────────────────────────────────────
@@ -836,7 +907,7 @@ function renderXSidebar(recentTweets) {
           ${date ? `<div class="sidebar-tweet-date">${escHtml(date)}</div>` : ''}
         </a>`;
       }).join('')
-    : `<div class="sidebar-empty">No recent tweets</div>`;
+    : `<div class="sidebar-empty">No recent posts</div>`;
   return `<div class="overview-x-sidebar">
     <div class="sidebar-x-header">${xLogo}<span class="sidebar-x-title">Latest from X</span></div>
     ${cards}
@@ -1101,7 +1172,7 @@ function renderPartners(data) {
       <div class="apify-missing-config-icon">🔑</div>
       <div class="apify-missing-config-title">X API Bearer Token Required</div>
       <div class="apify-missing-config-sub">
-        Add your X API Bearer Token to <span class="apify-key-example">.env</span> to enable live partner tweet analysis.<br><br>
+        Add your X API Bearer Token to <span class="apify-key-example">.env</span> to enable live partner post analysis.<br><br>
         <span class="apify-key-example">X_BEARER_TOKEN=AAAAAAAAAAAAA…</span><br><br>
         Get a Bearer Token from <a href="https://developer.x.com" target="_blank" rel="noopener" style="color:var(--accent)">developer.x.com</a> — requires a free developer account.
       </div>
@@ -1144,15 +1215,15 @@ function renderPartners(data) {
   if (data.firm === 'a16z') {
     feedHtml = tweets.length
       ? renderA16zTweetColumns(tweets)
-      : `<div class="empty-state">No recent tweets in the last 7 days.</div>`;
+      : `<div class="empty-state">No recent posts in the last 7 days.</div>`;
   } else if (data.firm === 'sequoia') {
     feedHtml = tweets.length
       ? renderSequoiaTweetColumns(tweets)
-      : `<div class="empty-state">No recent tweets in the last 7 days.</div>`;
+      : `<div class="empty-state">No recent posts in the last 7 days.</div>`;
   } else if (data.firm === 'yc') {
     feedHtml = tweets.length
       ? renderYCTweetColumns(tweets)
-      : `<div class="empty-state">No recent tweets in the last 7 days.</div>`;
+      : `<div class="empty-state">No recent posts in the last 7 days.</div>`;
   } else {
     const byHandle = {};
     tweets.forEach(t => { (byHandle[t.handle] = byHandle[t.handle] || []).push(t); });
@@ -1162,14 +1233,14 @@ function renderPartners(data) {
       return `<div class="tweet-author-section fade-up">
         <div class="tweet-author-header">
           <span class="handle-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">@${escHtml(handle)}</span>
-          <span class="tweet-count-label">${top3.length} tweet${top3.length !== 1 ? 's' : ''}</span>
+          <span class="tweet-count-label">${top3.length} post${top3.length !== 1 ? 's' : ''}</span>
         </div>
         <div class="tweet-cards">${top3.map(makeTweetCard).join('')}</div>
       </div>`;
     }).join('');
     feedHtml = tweets.length
       ? `<div class="tweet-feed">${groups}</div>`
-      : `<div class="empty-state">No recent tweets in the last 7 days.</div>`;
+      : `<div class="empty-state">No recent posts in the last 7 days.</div>`;
   }
 
   const xHeader = `<div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1.25rem;padding-bottom:0.875rem;border-bottom:1px solid var(--border)">
@@ -1177,8 +1248,24 @@ function renderPartners(data) {
     <span style="font-size:0.9375rem;font-weight:700;color:var(--text);letter-spacing:0.01em">X Activity</span>
   </div>`;
 
-  return xHeader + insightsCard + feedHtml + `
-    <div class="tweet-attribution">Powered by X API v2 · Original tweets only</div>`;
+  const activeSubTab = state.xActivitySubTab || 'partners';
+  const FIRM_X_LABEL = { a16z: 'a16z', yc: 'Y Combinator', sequoia: 'Sequoia' };
+  const partnerLabel = (FIRM_X_LABEL[data.firm] || data.firm) + ' X Activity';
+  const subtabBar = `<div class="x-subtab-bar">
+    <button class="x-subtab${activeSubTab === 'insights'  ? ' active' : ''}" data-subtab="insights"  onclick="selectXActivitySubTab('insights')">AI Signal Analysis</button>
+    <button class="x-subtab${activeSubTab === 'partners'  ? ' active' : ''}" data-subtab="partners"  onclick="selectXActivitySubTab('partners')">${partnerLabel}</button>
+    <button class="x-subtab${activeSubTab === 'portfolio' ? ' active' : ''}" data-subtab="portfolio" onclick="selectXActivitySubTab('portfolio')">Portfolio X Activity</button>
+  </div>`;
+
+  const portfolioContent = state.portfolioTweetsCache[data.firm]
+    ? renderPortfolioXActivity(state.portfolioTweetsCache[data.firm])
+    : `<div class="x-portfolio-loading">Click "Portfolio X Activity" above to load CEO posts from X…</div>`;
+
+  return xHeader + subtabBar +
+    `<div class="x-subtab-panel${activeSubTab !== 'insights'  ? ' hidden' : ''}" data-subtab="insights">${insightsCard}</div>` +
+    `<div class="x-subtab-panel${activeSubTab !== 'partners'  ? ' hidden' : ''}" data-subtab="partners">${feedHtml}</div>` +
+    `<div class="x-subtab-panel${activeSubTab !== 'portfolio' ? ' hidden' : ''}" data-subtab="portfolio" id="x-subtab-portfolio">${portfolioContent}</div>` +
+    `<div class="tweet-attribution">Powered by X API v2 · Original posts only</div>`;
 }
 
 function renderPortfolio(data) {
@@ -1422,7 +1509,7 @@ async function loadTab(tabId, force = false) {
 
   state.tabLoading[tabId] = true;
   const spinnerLabel = tabId === 'partners'
-    ? 'Fetching partner tweets from X...'
+    ? 'Fetching partner posts from X...'
     : tabId === 'overview'
     ? 'Building overview — analyzing all sources…'
     : `Loading ${tabDef.label}…`;
@@ -1482,17 +1569,47 @@ function showPanel(tabId) {
 
 async function selectInnerTab(tabId) {
   if (state.tabLoading[tabId]) return;
+  window.scrollTo(0, 0);
   state.activeInnerTab = tabId;
   renderInnerTabs();
   showPanel(tabId);
   await loadTab(tabId);
 }
 
+function selectXActivitySubTab(subTabId) {
+  state.xActivitySubTab = subTabId;
+  document.querySelectorAll('.x-subtab').forEach(b => {
+    b.classList.toggle('active', b.dataset.subtab === subTabId);
+  });
+  document.querySelectorAll('.x-subtab-panel').forEach(p => {
+    p.classList.toggle('hidden', p.dataset.subtab !== subTabId);
+  });
+  if (subTabId === 'portfolio' && !state.portfolioTweetsCache[state.activeFirm]) {
+    loadPortfolioTweets(state.activeFirm);
+  }
+}
+
+async function loadPortfolioTweets(firmId) {
+  const panel = document.getElementById('x-subtab-portfolio');
+  if (panel) panel.innerHTML = `<div class="x-portfolio-loading">Fetching portfolio CEO posts from X…</div>`;
+  try {
+    const res  = await fetch(`/api/portfolio-tweets?firm=${firmId}`);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    state.portfolioTweetsCache[firmId] = data;
+    if (panel) panel.innerHTML = renderPortfolioXActivity(data);
+  } catch (err) {
+    if (panel) panel.innerHTML = `<div class="empty-state">Failed to load portfolio posts: ${escHtml(err.message)}</div>`;
+  }
+}
+
 async function selectFirm(firmId) {
   if (state.loading) return;
-  state.activeFirm     = firmId;
-  state.activeInnerTab = 'overview';
-  state.tabCache       = {};
+  window.scrollTo(0, 0);
+  state.activeFirm       = firmId;
+  state.activeInnerTab   = 'overview';
+  state.tabCache         = {};
+  state.xActivitySubTab  = 'partners';
 
   renderFirmTabs();
   renderInnerTabs();
