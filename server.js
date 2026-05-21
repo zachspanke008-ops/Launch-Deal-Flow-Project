@@ -901,7 +901,7 @@ app.get('/api/portfolio', async (req, res) => {
 // ─── X API v2 / Twitter Integration ──────────────────────────────────────────
 
 const FIRM_TWITTER_HANDLES = {
-  a16z:    ['a16z', 'pmarca', 'bhorowitz', 'sarahgp', 'alexdanco', 'willbryk'],
+  a16z:    ['a16z', 'pmarca', 'bhorowitz'],
   sequoia: ['sequoia', 'shaunmmaguire', 'gradypb'],
   yc:      ['ycombinator', 'garrytan', 'paulg']
 };

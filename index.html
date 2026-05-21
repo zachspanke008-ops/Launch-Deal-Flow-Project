@@ -1068,18 +1068,9 @@ function renderA16zTweetColumns(tweets) {
     { handle: 'bhorowitz', name: 'Ben Horowitz' },
     { handle: 'pmarca',    name: 'Marc Andreessen' }
   ];
-  const MORE = [
-    { handle: 'sarahgp',   name: 'Sarah Wang' },
-    { handle: 'alexdanco', name: 'Alex Danco' },
-    { handle: 'willbryk',  name: 'Will Bryk' }
-  ];
   const byHandle = {};
   tweets.forEach(t => { (byHandle[t.handle] = byHandle[t.handle] || []).push(t); });
-  return `<div class="x-three-cols">${MAIN.map(({ handle, name }) => makeXCol(handle, name, byHandle)).join('')}</div>
-    <div class="x-more-section">
-      <div class="x-more-label">More Partners</div>
-      <div class="x-more-cols">${MORE.map(({ handle, name }) => makeXCol(handle, name, byHandle)).join('')}</div>
-    </div>`;
+  return `<div class="x-three-cols">${MAIN.map(({ handle, name }) => makeXCol(handle, name, byHandle)).join('')}</div>`;
 }
 
 function renderSequoiaTweetColumns(tweets) {
